@@ -21,7 +21,7 @@ export default function LandingPage() {
           </div>
           <div className="hidden md:flex items-center space-x-8">
             <Link to="/login" className="text-sm font-bold uppercase text-slate-400 hover:text-indigo-600 transition-colors tracking-widest">Login</Link>
-            <Link to="/register" className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 transition-all active:scale-95">
+            <Link to="/login" className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 transition-all active:scale-95">
               Get Started
             </Link>
           </div>
@@ -42,7 +42,7 @@ export default function LandingPage() {
               Modern task management designed for high-performance teams that value speed, precision, and architectural elegance.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/register" className="group px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-lg transition-all shadow-xl shadow-indigo-100 flex items-center justify-center">
+              <Link to="/login" className="group px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-lg transition-all shadow-xl shadow-indigo-100 flex items-center justify-center">
                 Start Building Free
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
               </Link>

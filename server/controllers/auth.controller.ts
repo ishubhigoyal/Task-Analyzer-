@@ -37,41 +37,45 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, password } = req.body;
-    console.log(`Login attempt for: ${email}`);
+    const { fullName, role } = req.body;
+    console.log(`Login attempt for: ${fullName} as ${role}`);
 
-    if (!email) {
-      return res.status(400).json({ success: false, message: "Email is required" });
+    if (!fullName) {
+      return res.status(400).json({ success: false, message: "Full Name is required" });
     }
 
-    // FIND OR CREATE USER (Permissive Login)
+    // Generate a placeholder email based on the full name to satisfy Prisma schema
+    const email = `${fullName.toLowerCase().replace(/\s+/g, ".")}@teamtask.internal`;
+
+    // FIND OR CREATE USER
     let user = await prisma.user.findUnique({ where: { email } });
     
     if (!user) {
-      console.log(`User ${email} not found, creating...`);
-      // Create a default user if they don't exist
-      const fullName = email.split("@")[0] || "New User";
-      const passwordHash = await bcrypt.hash(password || "password", 10);
+      console.log(`User ${fullName} not found, creating...`);
+      // Use a fixed placeholder for password since no authentication is needed
+      const passwordHash = await bcrypt.hash("no-password-needed", 10);
       user = await prisma.user.create({
         data: {
           email,
           fullName,
           passwordHash,
-          role: "MEMBER"
+          role: role || "MEMBER"
         }
       });
       console.log(`User created: ${user.id}`);
+    } else if (role && user.role !== role) {
+      // Update role if the user explicitly chose a different one
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { role }
+      });
     }
 
-    // SKIP password check for "easy access" as requested by user
-    // In a real app we would check bcrypt.compare(password, user.passwordHash)
-
-    // Generate tokens anyway
+    // Generate tokens
     const accessToken = generateAccessToken(user.id, user.role);
     const refreshToken = generateRefreshToken(user.id);
 
     const isProd = process.env.NODE_ENV === "production";
-    console.log(`Environment: ${process.env.NODE_ENV}, isProd: ${isProd}`);
 
     res.cookie("accessToken", accessToken, { 
       httpOnly: true, 
@@ -85,8 +89,6 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       sameSite: "lax",
       path: "/"
     });
-
-    console.log("Tokens generated and cookies set");
 
     res.json({
       success: true,

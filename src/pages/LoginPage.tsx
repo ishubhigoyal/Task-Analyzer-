@@ -1,27 +1,29 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
-import { Mail, Lock, Loader2, AlertCircle } from "lucide-react";
+import { User, Shield, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import api from "../api/api";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [role, setRole] = useState<"ADMIN" | "MEMBER">("MEMBER");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const { setAuth, setAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent, guestEmail?: string, guestPassword?: string) => {
+  const handleLogin = async (e: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (!fullName.trim()) {
+      setError("Please enter your full name.");
+      return;
+    }
+
     setIsLoading(true);
     setError("");
 
-    const loginEmail = guestEmail || email;
-    const loginPassword = guestPassword || password;
-
     try {
-      const response = await api.post("/auth/login", { email: loginEmail, password: loginPassword });
+      const response = await api.post("/auth/login", { fullName: fullName.trim(), role });
       const { user, accessToken } = response.data.data;
       
       // Store auth state
@@ -31,14 +33,10 @@ export default function LoginPage() {
       // Immediate navigation
       navigate("/dashboard");
     } catch (err: any) {
-      setError(err.response?.data?.message || "Invalid credentials. Please try again.");
+      setError(err.response?.data?.message || "Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleGuestLogin = () => {
-    handleLogin(null as any, "guest@example.com", "password123");
   };
 
   return (
@@ -53,10 +51,10 @@ export default function LoginPage() {
           </div>
           <span className="text-2xl font-black text-slate-900 tracking-tighter uppercase">TeamTask</span>
         </Link>
-...
+
         <div className="bg-white border border-slate-100 rounded-3xl p-10 shadow-xl shadow-slate-200/50 relative">
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome Back</h2>
-          <p className="text-slate-500 mb-8 text-sm font-medium leading-relaxed">Sign in to orchestrate your team projects.</p>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Instant Login</h2>
+          <p className="text-slate-500 mb-8 text-sm font-medium leading-relaxed">No password required. Just tell us who you are.</p>
 
           {error && (
             <div className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-xl flex items-center space-x-3 text-rose-500 text-sm font-bold">
@@ -67,32 +65,41 @@ export default function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Work Email</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                 <input 
-                  type="email" 
+                  type="text" 
                   required 
                   className="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl pl-12 pr-4 py-3.5 text-slate-900 outline-none transition-all placeholder:text-slate-300 font-medium"
-                  placeholder="name@company.com"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  placeholder="e.g. John Doe"
+                  value={fullName}
+                  onChange={e => setFullName(e.target.value)}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Security Key</label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                <input 
-                  type="password" 
-                  required 
-                  className="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl pl-12 pr-4 py-3.5 text-slate-900 outline-none transition-all placeholder:text-slate-300 font-medium"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                />
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Select Your Role</label>
+              <div className="grid grid-cols-2 gap-4">
+                <button 
+                  type="button"
+                  onClick={() => setRole("MEMBER")}
+                  className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all ${role === "MEMBER" ? "border-indigo-600 bg-indigo-50 text-indigo-700" : "border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200"}`}
+                >
+                  <User size={24} className={role === "MEMBER" ? "text-indigo-600" : "text-slate-300"} />
+                  <span className="text-xs font-bold mt-2 tracking-tight">Member</span>
+                  {role === "MEMBER" && <CheckCircle2 size={14} className="absolute top-2 right-2 text-indigo-600" />}
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setRole("ADMIN")}
+                  className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all ${role === "ADMIN" ? "border-indigo-600 bg-indigo-50 text-indigo-700" : "border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200"}`}
+                >
+                  <Shield size={24} className={role === "ADMIN" ? "text-indigo-600" : "text-slate-300"} />
+                  <span className="text-xs font-bold mt-2 tracking-tight">Admin</span>
+                  {role === "ADMIN" && <CheckCircle2 size={14} className="absolute top-2 right-2 text-indigo-600" />}
+                </button>
               </div>
             </div>
 
@@ -101,26 +108,12 @@ export default function LoginPage() {
               disabled={isLoading}
               className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-100 flex items-center justify-center space-x-2 active:scale-[0.98]"
             >
-              {isLoading ? <Loader2 className="animate-spin" size={20} /> : <span>Sign In to Dashboard</span>}
-            </button>
-            
-            <div className="relative py-2">
-              <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-100"></span></div>
-              <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-widest"><span className="bg-white px-4 text-slate-400">Easy Access</span></div>
-            </div>
-
-            <button 
-              type="button"
-              onClick={handleGuestLogin}
-              disabled={isLoading}
-              className="w-full py-4 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl font-bold transition-all border border-slate-200 flex items-center justify-center space-x-2 active:scale-[0.98]"
-            >
-              <span>Login as Guest</span>
+              {isLoading ? <Loader2 className="animate-spin" size={20} /> : <span>Access Dashboard</span>}
             </button>
           </form>
 
-          <p className="mt-8 text-center text-slate-400 text-sm font-medium">
-            New to TeamTask? <Link to="/register" className="text-indigo-600 hover:text-indigo-700 font-bold underline underline-offset-4 decoration-2">Create Free Account</Link>
+          <p className="mt-8 text-center text-slate-400 text-xs font-medium px-4">
+            By continuing, you agree to our workspace policies and terms.
           </p>
         </div>
       </div>
