@@ -63,8 +63,20 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     const accessToken = generateAccessToken(user.id, user.role);
     const refreshToken = generateRefreshToken(user.id);
 
-    res.cookie("accessToken", accessToken, { httpOnly: true, secure: process.env.NODE_ENV === "production" });
-    res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === "production" });
+    const isProd = process.env.NODE_ENV === "production";
+
+    res.cookie("accessToken", accessToken, { 
+      httpOnly: true, 
+      secure: isProd, 
+      sameSite: isProd ? "lax" : "lax",
+      path: "/"
+    });
+    res.cookie("refreshToken", refreshToken, { 
+      httpOnly: true, 
+      secure: isProd, 
+      sameSite: isProd ? "lax" : "lax",
+      path: "/"
+    });
 
     res.json({
       success: true,
@@ -91,7 +103,14 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
     if (!user) return res.status(401).json({ success: false, message: "User not found" });
 
     const accessToken = generateAccessToken(user.id, user.role);
-    res.cookie("accessToken", accessToken, { httpOnly: true });
+    const isProd = process.env.NODE_ENV === "production";
+
+    res.cookie("accessToken", accessToken, { 
+      httpOnly: true, 
+      secure: isProd,
+      sameSite: isProd ? "lax" : "lax",
+      path: "/"
+    });
 
     res.json({ success: true, accessToken });
   } catch (error) {
@@ -100,8 +119,8 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
 };
 
 export const logout = (req: Request, res: Response) => {
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
+  res.clearCookie("accessToken", { path: "/" });
+  res.clearCookie("refreshToken", { path: "/" });
   res.json({ success: true, message: "Logged out" });
 };
 

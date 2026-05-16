@@ -15,15 +15,18 @@ import { errorHandler } from "./server/middleware/error.middleware";
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
+
+  // Trust proxy is essential for Railway (reverse proxy) to handle cookies correctly
+  app.set("trust proxy", 1);
 
   // Basic Middlewares
   app.use(helmet({
     contentSecurityPolicy: false, // Vite needs this disabled in dev
   }));
   app.use(cors({
-    origin: true,
-    credentials: true
+    origin: true, // In production, you might want to specify your domain
+    credentials: true,
   }));
   app.use(morgan("dev"));
   app.use(express.json());
