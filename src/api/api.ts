@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useAuthStore } from "../store/useAuthStore";
 
 const api = axios.create({
   baseURL: "/api",
@@ -6,6 +7,15 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
   withCredentials: true,
+});
+
+// Request interceptor for adding the token to headers
+api.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().accessToken;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 // Interceptor for handling errors globally

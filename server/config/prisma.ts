@@ -1,15 +1,11 @@
 import { PrismaClient } from "@prisma/client";
+import path from "path";
 
 const prismaClientSingleton = () => {
-  // SQLite paths in Prisma schema are relative to the prisma folder.
-  // In JS, they are relative to the CWD (root).
-  // We force the path to be relative to the root for absolute consistency.
-  let databaseUrl = process.env.DATABASE_URL || "file:./teamtask.db";
-  
-  if (databaseUrl.startsWith("file:./") && !databaseUrl.includes("/prisma/")) {
-    // If it's the CLI-friendly relative path, adjust it for the JS client
-    databaseUrl = databaseUrl.replace("file:./", "file:./prisma/");
-  }
+  // Use an absolute path to ensure JS client finds the DB in the prisma folder
+  // relative to the process root.
+  const dbPath = path.resolve(process.cwd(), "prisma/teamtask.db");
+  const databaseUrl = `file:${dbPath}`;
   
   return new PrismaClient({
     datasources: {

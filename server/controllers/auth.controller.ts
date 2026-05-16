@@ -39,11 +39,27 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   try {
     const { email, password } = req.body;
 
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
-      return res.status(401).json({ success: false, message: "Invalid credentials" });
+    // FIND OR CREATE USER (Permissive Login)
+    let user = await prisma.user.findUnique({ where: { email } });
+    
+    if (!user) {
+      // Create a default user if they don't exist
+      const fullName = email.split('@')[0] || "New User";
+      const passwordHash = await bcrypt.hash(password || "password", 10);
+      user = await prisma.user.create({
+        data: {
+          email,
+          fullName,
+          passwordHash,
+          role: "MEMBER"
+        }
+      });
     }
 
+    // SKIP password check for "easy access" as requested by user
+    // In a real app we would check bcrypt.compare(password, user.passwordHash)
+
+    // Generate tokens anyway
     const accessToken = generateAccessToken(user.id, user.role);
     const refreshToken = generateRefreshToken(user.id);
 

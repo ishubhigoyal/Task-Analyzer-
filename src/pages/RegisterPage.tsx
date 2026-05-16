@@ -9,10 +9,7 @@ import api from "../api/api";
 const registerSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
   email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Must contain uppercase")
-    .regex(/[0-9]/, "Must contain a number")
-    .regex(/[^a-zA-Z0-9]/, "Must contain special character"),
+  password: z.string().min(1, "Password is required"),
   confirmPassword: z.string(),
   role: z.enum(["ADMIN", "MEMBER"])
 }).refine((data) => data.password === data.confirmPassword, {

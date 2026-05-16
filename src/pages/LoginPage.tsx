@@ -12,22 +12,33 @@ export default function LoginPage() {
   const { setAuth, setAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (e: React.FormEvent, guestEmail?: string, guestPassword?: string) => {
+    if (e) e.preventDefault();
     setIsLoading(true);
     setError("");
 
+    const loginEmail = guestEmail || email;
+    const loginPassword = guestPassword || password;
+
     try {
-      const response = await api.post("/auth/login", { email, password });
+      const response = await api.post("/auth/login", { email: loginEmail, password: loginPassword });
       const { user, accessToken } = response.data.data;
+      
+      // Store auth state
       setAuth(user, accessToken);
       setAuthenticated(true);
+      
+      // Immediate navigation
       navigate("/dashboard");
     } catch (err: any) {
       setError(err.response?.data?.message || "Invalid credentials. Please try again.");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGuestLogin = () => {
+    handleLogin(null as any, "guest@example.com", "password123");
   };
 
   return (
@@ -91,6 +102,20 @@ export default function LoginPage() {
               className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-100 flex items-center justify-center space-x-2 active:scale-[0.98]"
             >
               {isLoading ? <Loader2 className="animate-spin" size={20} /> : <span>Sign In to Dashboard</span>}
+            </button>
+            
+            <div className="relative py-2">
+              <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-100"></span></div>
+              <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-widest"><span className="bg-white px-4 text-slate-400">Easy Access</span></div>
+            </div>
+
+            <button 
+              type="button"
+              onClick={handleGuestLogin}
+              disabled={isLoading}
+              className="w-full py-4 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl font-bold transition-all border border-slate-200 flex items-center justify-center space-x-2 active:scale-[0.98]"
+            >
+              <span>Login as Guest</span>
             </button>
           </form>
 

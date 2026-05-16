@@ -54,7 +54,23 @@ export default function Dashboard() {
     );
   }
 
-  const { stats, tasksByStatus, overdueTasks, tasks } = dashboardData;
+  if (!dashboardData) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px]">
+        <AlertTriangle className="text-amber-500 mb-4" size={48} />
+        <h2 className="text-xl font-bold text-slate-800">Something went wrong</h2>
+        <p className="text-slate-500 mt-2">Could not load dashboard data. Please try again later.</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="mt-6 bg-indigo-600 text-white px-6 py-2 rounded-xl"
+        >
+          Refresh Page
+        </button>
+      </div>
+    );
+  }
+
+  const { stats = {}, tasksByStatus = [], overdueTasks = [], tasks = [] } = dashboardData;
 
   const statusData = tasksByStatus?.map((s: any) => ({
     name: s.status,
