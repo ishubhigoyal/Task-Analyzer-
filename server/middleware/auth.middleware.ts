@@ -26,6 +26,7 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
       console.log("[AUTH] Creating bootstrap admin user");
       user = await prisma.user.create({
         data: {
+          id: "869cf373-8567-49bf-af4e-a693bb3207f4",
           fullName: "System Admin",
           email: "admin@taskmanager.com",
           passwordHash: "bypass",
@@ -39,7 +40,7 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
   } catch (error) {
     console.error("[AUTH ERROR]", error);
     // Ultimate fallback if even creation fails (e.g. DB connection issues)
-    req.user = { id: "507f1f77bcf86cd799439011", role: "ADMIN" };
+    req.user = { id: "869cf373-8567-49bf-af4e-a693bb3207f4", role: "ADMIN" };
     next();
   }
 };
