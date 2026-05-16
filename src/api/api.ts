@@ -28,8 +28,8 @@ api.interceptors.response.use(
         await api.post("/auth/refresh");
         return api(error.config);
       } catch (refreshError) {
-        // Redirect to login if refresh fails
-        window.location.href = "/login";
+        // Just log the error instead of redirecting
+        console.error("Auth session expired", refreshError);
       }
     }
     return Promise.reject(error);

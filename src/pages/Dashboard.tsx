@@ -29,13 +29,19 @@ export default function Dashboard() {
   const { user } = useAuthStore();
   const isAdmin = user?.role === "ADMIN";
 
-  const { data: dashboardData, isLoading } = useQuery({
+  const { data: dashboardData, isLoading, error, refetch } = useQuery({
     queryKey: ["dashboard", user?.role],
     queryFn: async () => {
-      const endpoint = isAdmin ? "/dashboard/admin" : "/dashboard/member";
-      const res = await api.get(endpoint);
-      return res.data.data;
-    }
+      try {
+        const endpoint = isAdmin ? "/dashboard/admin" : "/dashboard/member";
+        const res = await api.get(endpoint);
+        return res.data.data;
+      } catch (err: any) {
+        console.error("Dashboard data fetch failed:", err);
+        throw err;
+      }
+    },
+    retry: 1
   });
 
   if (isLoading) {
@@ -54,17 +60,21 @@ export default function Dashboard() {
     );
   }
 
-  if (!dashboardData) {
+  if (error || !dashboardData) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <AlertTriangle className="text-amber-500 mb-4" size={48} />
-        <h2 className="text-xl font-bold text-slate-800">Something went wrong</h2>
-        <p className="text-slate-500 mt-2">Could not load dashboard data. Please try again later.</p>
+      <div className="flex flex-col items-center justify-center min-h-[400px] p-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
+        <div className="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500 mb-6">
+          <AlertTriangle size={32} />
+        </div>
+        <h2 className="text-xl font-bold text-slate-900">Dashboard Unavailable</h2>
+        <p className="text-slate-500 mt-2 text-center max-w-xs font-medium">
+          {error instanceof Error ? error.message : "We encountered an architectural error while retrieving your workspace stats."}
+        </p>
         <button 
-          onClick={() => window.location.reload()}
-          className="mt-6 bg-indigo-600 text-white px-6 py-2 rounded-xl"
+          onClick={() => refetch()}
+          className="mt-8 bg-indigo-600 hover:bg-slate-900 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg shadow-indigo-100"
         >
-          Refresh Page
+          Retry Connection
         </button>
       </div>
     );

@@ -30,9 +30,7 @@ async function startServer() {
   }));
   app.use(morgan("dev"));
   app.use((req, res, next) => {
-    if (req.path.startsWith("/api/auth")) {
-      console.log(`[AUTH DEBUG] ${req.method} ${req.path}`);
-    }
+    console.log(`[API DEBUG] ${req.method} ${req.url}`);
     next();
   });
   app.use(express.json());

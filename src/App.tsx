@@ -7,6 +7,7 @@ import ProjectDetails from "./pages/ProjectDetails";
 import TasksList from "./pages/TasksList";
 import TaskDetails from "./pages/TaskDetails";
 import ProfilePage from "./pages/ProfilePage";
+import MembersList from "./pages/MembersList";
 import DashboardLayout from "./layouts/DashboardLayout";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -62,6 +63,14 @@ export default function App() {
         <ProtectedRoute>
           <DashboardLayout>
             <ProfilePage />
+          </DashboardLayout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/members" element={
+        <ProtectedRoute>
+          <DashboardLayout>
+            <MembersList />
           </DashboardLayout>
         </ProtectedRoute>
       } />
