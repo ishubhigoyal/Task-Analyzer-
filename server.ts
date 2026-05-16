@@ -66,8 +66,20 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
+  app.listen(PORT, "0.0.0.0", async () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
+    
+    // Startup check
+    try {
+      const { default: prisma } = await import("./server/config/prisma");
+      const userCount = await prisma.user.count();
+      console.log(`[STARTUP] Database connected. User count: ${userCount}`);
+      if (userCount === 0) {
+        console.warn("[STARTUP] Dashboard might be empty. No users found.");
+      }
+    } catch (err) {
+      console.error("[STARTUP ERROR] Database connection check failed:", err);
+    }
   });
 }
 

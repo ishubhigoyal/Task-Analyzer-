@@ -34,10 +34,12 @@ export default function Dashboard() {
     queryFn: async () => {
       try {
         const endpoint = isAdmin ? "/dashboard/admin" : "/dashboard/member";
+        console.log(`Fetching dashboard data from: /api${endpoint}`);
         const res = await api.get(endpoint);
         return res.data.data;
       } catch (err: any) {
-        console.error("Dashboard data fetch failed:", err);
+        const serverMsg = err?.response?.data?.message;
+        console.error("Dashboard fetch error:", serverMsg || err.message);
         throw err;
       }
     },
@@ -68,7 +70,7 @@ export default function Dashboard() {
         </div>
         <h2 className="text-xl font-bold text-slate-900">Dashboard Unavailable</h2>
         <p className="text-slate-500 mt-2 text-center max-w-xs font-medium">
-          {error instanceof Error ? error.message : "We encountered an architectural error while retrieving your workspace stats."}
+          {error?.response?.data?.message || error.message || "We encountered an architectural error while retrieving your workspace stats."}
         </p>
         <button 
           onClick={() => refetch()}

@@ -10,26 +10,37 @@ export interface AuthRequest extends Request {
 }
 
 export const authenticate = async (req: AuthRequest, res: Response, next: NextFunction) => {
-  // BYPASS AUTH: Always provide the seeded admin user
+  // BYPASS AUTH: Always provide a valid database user
   try {
-    const admin = await prisma.user.findFirst({
+    let user = await prisma.user.findFirst({
       where: { email: "admin@taskmanager.com" }
     });
 
-    if (admin) {
-      req.user = { id: admin.id, role: admin.role as "ADMIN" | "MEMBER" };
-    } else {
-      // Fallback if seed didn't run
-      const firstUser = await prisma.user.findFirst();
-      if (firstUser) {
-        req.user = { id: firstUser.id, role: firstUser.role as "ADMIN" | "MEMBER" };
-      } else {
-        req.user = { id: "system-admin", role: "ADMIN" };
-      }
+    if (!user) {
+      // If the specific admin is missing, try to get any user
+      user = await prisma.user.findFirst();
     }
+
+    if (!user) {
+      // If the database is completely empty, create a bootstrap user
+      console.log("[AUTH] Creating bootstrap admin user");
+      user = await prisma.user.create({
+        data: {
+          id: "869cf373-8567-49bf-af4e-a693bb3207f4",
+          fullName: "System Admin",
+          email: "admin@taskmanager.com",
+          passwordHash: "bypass",
+          role: "ADMIN"
+        }
+      });
+    }
+
+    req.user = { id: user.id, role: user.role as "ADMIN" | "MEMBER" };
     next();
   } catch (error) {
-    req.user = { id: "system-admin", role: "ADMIN" };
+    console.error("[AUTH ERROR]", error);
+    // Ultimate fallback if even creation fails (e.g. DB connection issues)
+    req.user = { id: "869cf373-8567-49bf-af4e-a693bb3207f4", role: "ADMIN" };
     next();
   }
 };
