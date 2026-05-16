@@ -38,13 +38,19 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
+    console.log(`Login attempt for: ${email}`);
+
+    if (!email) {
+      return res.status(400).json({ success: false, message: "Email is required" });
+    }
 
     // FIND OR CREATE USER (Permissive Login)
     let user = await prisma.user.findUnique({ where: { email } });
     
     if (!user) {
+      console.log(`User ${email} not found, creating...`);
       // Create a default user if they don't exist
-      const fullName = email.split('@')[0] || "New User";
+      const fullName = email.split("@")[0] || "New User";
       const passwordHash = await bcrypt.hash(password || "password", 10);
       user = await prisma.user.create({
         data: {
@@ -54,6 +60,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
           role: "MEMBER"
         }
       });
+      console.log(`User created: ${user.id}`);
     }
 
     // SKIP password check for "easy access" as requested by user
@@ -64,19 +71,22 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     const refreshToken = generateRefreshToken(user.id);
 
     const isProd = process.env.NODE_ENV === "production";
+    console.log(`Environment: ${process.env.NODE_ENV}, isProd: ${isProd}`);
 
     res.cookie("accessToken", accessToken, { 
       httpOnly: true, 
       secure: isProd, 
-      sameSite: isProd ? "lax" : "lax",
+      sameSite: "lax",
       path: "/"
     });
     res.cookie("refreshToken", refreshToken, { 
       httpOnly: true, 
       secure: isProd, 
-      sameSite: isProd ? "lax" : "lax",
+      sameSite: "lax",
       path: "/"
     });
+
+    console.log("Tokens generated and cookies set");
 
     res.json({
       success: true,
@@ -88,6 +98,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       }
     });
   } catch (error) {
+    console.error("Login controller error:", error);
     next(error);
   }
 };

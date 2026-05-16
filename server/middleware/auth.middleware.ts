@@ -27,7 +27,7 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
       return res.status(401).json({ success: false, message: "User not found" });
     }
 
-    req.user = { id: user.id, role: user.role };
+    req.user = { id: user.id, role: user.role as "ADMIN" | "MEMBER" };
     next();
   } catch (error) {
     return res.status(401).json({ success: false, message: "Invalid or expired token" });

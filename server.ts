@@ -15,7 +15,7 @@ import { errorHandler } from "./server/middleware/error.middleware";
 
 async function startServer() {
   const app = express();
-  const PORT = process.env.PORT || 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   // Trust proxy is essential for Railway (reverse proxy) to handle cookies correctly
   app.set("trust proxy", 1);
@@ -29,6 +29,12 @@ async function startServer() {
     credentials: true,
   }));
   app.use(morgan("dev"));
+  app.use((req, res, next) => {
+    if (req.path.startsWith("/api/auth")) {
+      console.log(`[AUTH DEBUG] ${req.method} ${req.path}`);
+    }
+    next();
+  });
   app.use(express.json());
   app.use(cookieParser());
 

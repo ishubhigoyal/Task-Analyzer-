@@ -11,6 +11,9 @@
     "lint": "tsc --noEmit",
     "postinstall": "prisma generate"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "dependencies": {
     "@google/genai": "^1.29.0",
     "@hookform/resolvers": "^5.2.2",
