@@ -2,11 +2,12 @@ import { PrismaClient } from "@prisma/client";
 import path from "path";
 
 const prismaClientSingleton = () => {
-  // Use an absolute path to ensure JS client finds the DB in the prisma folder
-  // relative to the process root.
-  const dbPath = path.resolve(process.cwd(), "prisma/teamtask.db");
-  const databaseUrl = `file:${dbPath}`;
+  const databaseUrl = process.env.DATABASE_URL;
   
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL environment variable is required");
+  }
+
   return new PrismaClient({
     datasources: {
       db: {

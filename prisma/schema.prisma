@@ -6,12 +6,12 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id            String          @id @default(uuid())
+  id            String          @id @default(auto()) @map("_id") @db.ObjectId
   fullName      String
   email         String          @unique
   passwordHash  String
@@ -27,10 +27,10 @@ model User {
 }
 
 model Project {
-  id          String   @id @default(uuid())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String?
-  createdBy   String
+  createdBy   String   @db.ObjectId
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -40,9 +40,9 @@ model Project {
 }
 
 model ProjectMember {
-  id        String   @id @default(uuid())
-  userId    String
-  projectId String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  projectId String   @db.ObjectId
   joinedAt  DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id])
@@ -52,15 +52,15 @@ model ProjectMember {
 }
 
 model Task {
-  id          String     @id @default(uuid())
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   description String?
   status      String     @default("TODO") // TODO, IN_PROGRESS, REVIEW, DONE
   priority    String     @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
   dueDate     DateTime?
-  projectId   String
-  assignedTo  String?
-  createdBy   String
+  projectId   String     @db.ObjectId
+  assignedTo  String?    @db.ObjectId
+  createdBy   String     @db.ObjectId
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
@@ -71,10 +71,10 @@ model Task {
 }
 
 model Comment {
-  id        String   @id @default(uuid())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   content   String
-  taskId    String
-  userId    String
+  taskId    String   @db.ObjectId
+  userId    String   @db.ObjectId
   createdAt DateTime @default(now())
 
   task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)

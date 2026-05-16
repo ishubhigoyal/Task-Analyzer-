@@ -22,7 +22,7 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: {
-        id: "869cf373-8567-49bf-af4e-a693bb3207f4",
+        id: "507f1f77bcf86cd799439011",
         fullName: "Admin User",
         email: "admin@taskmanager.com",
         role: "ADMIN"
