@@ -21,17 +21,7 @@ api.interceptors.request.use((config) => {
 // Interceptor for handling errors globally
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    if (error.response?.status === 401 && !error.config._retry) {
-      error.config._retry = true;
-      try {
-        await api.post("/auth/refresh");
-        return api(error.config);
-      } catch (refreshError) {
-        // Just log the error instead of redirecting
-        console.error("Auth session expired", refreshError);
-      }
-    }
+  (error) => {
     return Promise.reject(error);
   }
 );

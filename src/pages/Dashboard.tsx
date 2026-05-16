@@ -49,12 +49,12 @@ export default function Dashboard() {
       <div className="space-y-8 animate-pulse">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-32 bg-slate-800 rounded-2xl border border-slate-700"></div>
+            <div key={i} className="h-32 bg-slate-100 rounded-2xl border border-slate-200"></div>
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="h-80 bg-slate-800 rounded-2xl border border-slate-700"></div>
-          <div className="h-80 bg-slate-800 rounded-2xl border border-slate-700"></div>
+          <div className="h-80 bg-slate-100 rounded-2xl border border-slate-200"></div>
+          <div className="h-80 bg-slate-100 rounded-2xl border border-slate-200"></div>
         </div>
       </div>
     );

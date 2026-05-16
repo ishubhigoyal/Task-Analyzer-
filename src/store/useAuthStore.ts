@@ -22,9 +22,9 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: {
-        id: "guest-id",
-        fullName: "Workspace Member",
-        email: "guest@teamtask.internal",
+        id: "869cf373-8567-49bf-af4e-a693bb3207f4",
+        fullName: "Admin User",
+        email: "admin@taskmanager.com",
         role: "ADMIN"
       },
       accessToken: "bypass-token",

@@ -10,41 +10,26 @@ export interface AuthRequest extends Request {
 }
 
 export const authenticate = async (req: AuthRequest, res: Response, next: NextFunction) => {
-  // BYPASS AUTH: Always provide a guest user session
-  const token = req.cookies.accessToken || req.headers.authorization?.split(" ")[1];
-
-  let userId = "guest-id";
-
-  if (token) {
-    try {
-      const decoded = verifyAccessToken(token);
-      userId = decoded.userId;
-    } catch (e) {
-      // Ignore token errors
-    }
-  }
-
-  // Try to find the user, or just use a default one from database
+  // BYPASS AUTH: Always provide the seeded admin user
   try {
-    let user = await prisma.user.findFirst(); // Just grab any user to act as context
-    
-    if (!user) {
-      // Create a default system user if none exists
-      user = await prisma.user.create({
-        data: {
-          email: "system@workspace.internal",
-          fullName: "System Admin",
-          passwordHash: "no-auth",
-          role: "ADMIN"
-        }
-      });
-    }
+    const admin = await prisma.user.findFirst({
+      where: { email: "admin@taskmanager.com" }
+    });
 
-    req.user = { id: user.id, role: user.role as "ADMIN" | "MEMBER" };
+    if (admin) {
+      req.user = { id: admin.id, role: admin.role as "ADMIN" | "MEMBER" };
+    } else {
+      // Fallback if seed didn't run
+      const firstUser = await prisma.user.findFirst();
+      if (firstUser) {
+        req.user = { id: firstUser.id, role: firstUser.role as "ADMIN" | "MEMBER" };
+      } else {
+        req.user = { id: "system-admin", role: "ADMIN" };
+      }
+    }
     next();
   } catch (error) {
-    // Ultimate fallback to hardcoded guest info
-    req.user = { id: "permanent-guest", role: "ADMIN" };
+    req.user = { id: "system-admin", role: "ADMIN" };
     next();
   }
 };
