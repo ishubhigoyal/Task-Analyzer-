@@ -10,27 +10,42 @@ export interface AuthRequest extends Request {
 }
 
 export const authenticate = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  // BYPASS AUTH: Always provide a guest user session
   const token = req.cookies.accessToken || req.headers.authorization?.split(" ")[1];
 
-  if (!token) {
-    return res.status(401).json({ success: false, message: "Authentication required" });
+  let userId = "guest-id";
+
+  if (token) {
+    try {
+      const decoded = verifyAccessToken(token);
+      userId = decoded.userId;
+    } catch (e) {
+      // Ignore token errors
+    }
   }
 
+  // Try to find the user, or just use a default one from database
   try {
-    const decoded = verifyAccessToken(token);
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: { id: true, role: true }
-    });
-
+    let user = await prisma.user.findFirst(); // Just grab any user to act as context
+    
     if (!user) {
-      return res.status(401).json({ success: false, message: "User not found" });
+      // Create a default system user if none exists
+      user = await prisma.user.create({
+        data: {
+          email: "system@workspace.internal",
+          fullName: "System Admin",
+          passwordHash: "no-auth",
+          role: "ADMIN"
+        }
+      });
     }
 
     req.user = { id: user.id, role: user.role as "ADMIN" | "MEMBER" };
     next();
   } catch (error) {
-    return res.status(401).json({ success: false, message: "Invalid or expired token" });
+    // Ultimate fallback to hardcoded guest info
+    req.user = { id: "permanent-guest", role: "ADMIN" };
+    next();
   }
 };
 

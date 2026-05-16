@@ -1,7 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
 import LandingPage from "./pages/LandingPage";
-import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
 import ProjectsList from "./pages/ProjectsList";
 import ProjectDetails from "./pages/ProjectDetails";
@@ -10,12 +9,7 @@ import TaskDetails from "./pages/TaskDetails";
 import ProfilePage from "./pages/ProfilePage";
 import DashboardLayout from "./layouts/DashboardLayout";
 
-const ProtectedRoute = ({ children, roles }: { children: React.ReactNode; roles?: string[] }) => {
-  const { isAuthenticated, user } = useAuthStore();
-  
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (roles && !roles.includes(user?.role || "")) return <Navigate to="/dashboard" replace />;
-  
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
@@ -23,7 +17,6 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<LoginPage />} />
       
       <Route path="/dashboard" element={
         <ProtectedRoute>

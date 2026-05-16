@@ -20,9 +20,8 @@ export default function LandingPage() {
             <span className="text-xl font-bold text-slate-900 tracking-tight uppercase">TeamTask</span>
           </div>
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/login" className="text-sm font-bold uppercase text-slate-400 hover:text-indigo-600 transition-colors tracking-widest">Login</Link>
-            <Link to="/login" className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 transition-all active:scale-95">
-              Get Started
+            <Link to="/dashboard" className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 transition-all active:scale-95">
+              Launch Dashboard
             </Link>
           </div>
         </div>
@@ -42,11 +41,11 @@ export default function LandingPage() {
               Modern task management designed for high-performance teams that value speed, precision, and architectural elegance.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/login" className="group px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-lg transition-all shadow-xl shadow-indigo-100 flex items-center justify-center">
-                Start Building Free
+              <Link to="/dashboard" className="group px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-lg transition-all shadow-xl shadow-indigo-100 flex items-center justify-center">
+                Get Started
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
               </Link>
-              <Link to="/login" className="px-8 py-4 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-2xl font-bold text-lg transition-all border border-slate-200 flex items-center justify-center">
+              <Link to="/dashboard" className="px-8 py-4 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-2xl font-bold text-lg transition-all border border-slate-200 flex items-center justify-center">
                 Live Demo
               </Link>
             </div>
