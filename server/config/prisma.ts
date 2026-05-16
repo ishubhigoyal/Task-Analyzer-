@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 const prismaClientSingleton = () => {
   // Ensure DATABASE_URL is set for SQLite if missing
   if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = "file:./dev.db";
+    process.env.DATABASE_URL = "file:./app.db";
   }
   return new PrismaClient();
 };
